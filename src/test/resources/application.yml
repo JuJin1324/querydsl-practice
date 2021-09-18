@@ -13,6 +13,7 @@ spring:
       hibernate:
         #        show_sql: true
         format_sql: true
+#        use_sql_comments: true
         default_batch_fetch_size: 256    # 첫번째 쿼리 결과 리스트에서 각 하위 객체 Lazy Loading 시 In 으로 한꺼번에 가져오기 옵션
           # 처음에 100개로 두고 테스트 해보면서 필요에 따라 늘려나간다. 단 한계치는 1000 이다.
         # in 쿼리에 한번에 1000개가 넘어가면 오류를 일으키는 데이터베이스들이 있기 때문.

@@ -215,4 +215,47 @@ public class QueryDslBasicTest {
                 .extracting("username")
                 .containsExactly("teamA", "teamB");
     }
+
+    @Test
+    void join_on_filtering() {
+        List<Tuple> result = queryFactory
+                .select(member, team)
+                .from(member)
+                .leftJoin(member.team, team).on(team.name.eq("teamA"))
+                .fetch();
+        result.forEach(tuple -> {
+            System.out.println("tuple.get(member) = " + tuple.get(member).getUsername());
+            if (tuple.get(team) != null) {
+                System.out.println("tuple.get(team) = " + tuple.get(team).getName());
+            } else {
+                System.out.println("tuple.get(team) = " + tuple.get(team));
+            }
+        });
+    }
+
+    /**
+     * 연관관계 없는 엔티티 외부 조인
+     * 회원 이름이 팀 이름과 같은 회원 조회
+     */
+    @Test
+    void join_on_no_relation() {
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+        em.persist(new Member("teamC"));
+
+        List<Tuple> result = queryFactory
+                .select(member, team)
+                .from(member)
+                .leftJoin(team).on(member.username.eq(team.name))
+                .fetch();
+
+        result.forEach(tuple -> {
+            System.out.println("tuple.get(member).getUsername() = " + tuple.get(member).getUsername());
+            if (tuple.get(team) != null) {
+                System.out.println("tuple.get(team) = " + tuple.get(team).getName());
+            } else {
+                System.out.println("tuple.get(team) = " + tuple.get(team));
+            }
+        });
+    }
 }

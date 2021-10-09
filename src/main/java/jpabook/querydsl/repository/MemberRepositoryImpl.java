@@ -11,12 +11,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 
-import static jpabook.querydsl.entity.QMember.*;
-import static jpabook.querydsl.entity.QTeam.*;
+import static jpabook.querydsl.entity.QMember.member;
+import static jpabook.querydsl.entity.QTeam.team;
 
 /**
  * Created by Yoo Ju Jin(jujin@100fac.com)
@@ -61,9 +62,10 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     @Override
     public Page<MemberTeamDto> searchPageComplex(MemberSearchCondition condition, Pageable pageable) {
         List<MemberTeamDto> content = getPageQuery(condition, pageable).fetch();
-        long total = getCount(condition);
-
-        return new PageImpl<>(content, pageable, total);
+        /* count query 최적화
+         * count 쿼리 없이도 totalCount 가 계산되는 경우에 count query 를 호출하지 않도록한다.
+         */
+        return PageableExecutionUtils.getPage(content, pageable, () -> getCount(condition));
     }
 
     private JPAQuery<MemberTeamDto> getPageQuery(MemberSearchCondition condition, Pageable pageable) {

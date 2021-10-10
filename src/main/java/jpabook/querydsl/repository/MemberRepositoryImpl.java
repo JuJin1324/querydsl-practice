@@ -50,25 +50,31 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .fetch();
     }
 
+    /*
+     * TODO: MemberDslSupportRepository 를 참고하면 더 좋은 코드 사용 가능
+     */
     @Override
     public Page<MemberTeamDto> searchPageSimple(MemberSearchCondition condition, Pageable pageable) {
-        QueryResults<MemberTeamDto> results = getPageQuery(condition, pageable).fetchResults();
+        QueryResults<MemberTeamDto> results = getPageContentQuery(condition, pageable).fetchResults();
 
         List<MemberTeamDto> content = results.getResults();
         long total = results.getTotal();
         return new PageImpl<>(content, pageable, total);
     }
 
+    /*
+     * TODO: MemberDslSupportRepository 를 참고하면 더 좋은 코드 사용 가능
+     */
     @Override
     public Page<MemberTeamDto> searchPageComplex(MemberSearchCondition condition, Pageable pageable) {
-        List<MemberTeamDto> content = getPageQuery(condition, pageable).fetch();
+        List<MemberTeamDto> content = getPageContentQuery(condition, pageable).fetch();
         /* count query 최적화
          * count 쿼리 없이도 totalCount 가 계산되는 경우에 count query 를 호출하지 않도록한다.
          */
         return PageableExecutionUtils.getPage(content, pageable, () -> getCount(condition));
     }
 
-    private JPAQuery<MemberTeamDto> getPageQuery(MemberSearchCondition condition, Pageable pageable) {
+    private JPAQuery<MemberTeamDto> getPageContentQuery(MemberSearchCondition condition, Pageable pageable) {
         return queryFactory
                 .select(new QMemberTeamDto(
                         member.id.as("memberId"),
